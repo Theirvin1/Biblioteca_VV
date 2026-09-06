@@ -21,5 +21,10 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
+# Portadas de libros subidas por el bibliotecario (almacenamiento local de
+# desarrollo/demo). No se versionan archivos reales, solo la carpeta.
+app/static/uploads/portadas/*
+!app/static/uploads/portadas/.gitkeep
+
 # Migraciones si usas algo tipo Alembic y no quieres subir el historial completo (opcional, normalmente SÍ se suben)
 # alembic/versions/*.pyc

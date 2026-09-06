@@ -1,0 +1,92 @@
+{% extends 'estudiante/_base.html' %}
+{% from 'shared/_paginacion.html' import control_paginacion %}
+
+{% block title %}Mis préstamos - Estudiante{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Mis préstamos</h2>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-header">Préstamos activos</div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Libro</th>
+                    <th>Fecha préstamo</th>
+                    <th>Fecha límite</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for prestamo in prestamos_activos %}
+                <tr>
+                    <td>{{ prestamo.codigo_prestamo }}</td>
+                    <td>{{ prestamo.ejemplar.libro.titulo }}</td>
+                    <td>{{ prestamo.fecha_prestamo.strftime('%d/%m/%Y') }}</td>
+                    <td>{{ prestamo.fecha_limite.strftime('%d/%m/%Y') }}</td>
+                    <td>
+                        {% if prestamo.fecha_limite < hoy %}
+                        <span class="badge text-bg-danger">Vencido</span>
+                        {% else %}
+                        <span class="badge text-bg-success">A tiempo</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="5" class="text-center text-muted py-3">No tienes préstamos activos en este momento.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header d-flex flex-wrap gap-2 justify-content-between align-items-center">
+        <span>Historial de préstamos</span>
+        <form method="GET" class="d-flex gap-2">
+            <select name="retraso" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="" {% if not filtros.retraso %}selected{% endif %}>Todos</option>
+                <option value="atiempo" {% if filtros.retraso == 'atiempo' %}selected{% endif %}>Devueltos a tiempo</option>
+                <option value="retraso" {% if filtros.retraso == 'retraso' %}selected{% endif %}>Devueltos con retraso</option>
+            </select>
+        </form>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Libro</th>
+                    <th>Fecha préstamo</th>
+                    <th>Fecha devolución</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for prestamo in historial %}
+                <tr>
+                    <td>{{ prestamo.codigo_prestamo }}</td>
+                    <td>{{ prestamo.ejemplar.libro.titulo }}</td>
+                    <td>{{ prestamo.fecha_prestamo.strftime('%d/%m/%Y') }}</td>
+                    <td>{{ prestamo.devolucion.fecha_devolucion.strftime('%d/%m/%Y') if prestamo.devolucion else '-' }}</td>
+                    <td>
+                        {% if prestamo.devolucion and prestamo.devolucion.dias_retraso > 0 %}
+                        <span class="badge text-bg-warning">Devuelto con retraso</span>
+                        {% else %}
+                        <span class="badge text-bg-secondary">Devuelto</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="5" class="text-center text-muted py-3">Aún no tienes historial de préstamos con esos criterios.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if paginacion_historial %}
+    {{ control_paginacion(paginacion_historial, 'estudiante.mis_prestamos', argumentos, 'préstamos') }}
+    {% endif %}
+</div>
+{% endblock %}

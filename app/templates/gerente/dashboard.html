@@ -1,0 +1,121 @@
+{% extends 'gerente/_base.html' %}
+
+{% block title %}Dashboard - Gerente{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Panel del gerente</h2>
+
+<div class="row g-3 mb-3">
+    <div class="col-6 col-md-3">
+        <div class="card text-bg-primary shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title">Libros activos</h6>
+                <p class="display-6 mb-0">{{ indicadores.total_libros }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card text-bg-success shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title">Préstamos activos</h6>
+                <p class="display-6 mb-0">{{ indicadores.prestamos_activos }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card text-bg-danger shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title">Préstamos vencidos</h6>
+                <p class="display-6 mb-0">{{ indicadores.prestamos_vencidos }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card text-bg-warning shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title">Estudiantes con vencidos</h6>
+                <p class="display-6 mb-0">{{ indicadores.estudiantes_con_vencidos }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title text-muted">Libros con stock disponible</h6>
+                <p class="display-6 mb-0">{{ indicadores.libros_disponibles }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title text-muted">Devoluciones con multa (histórico)</h6>
+                <p class="display-6 mb-0">{{ indicadores.devoluciones_con_multa }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title text-muted">Multas pendientes de pago</h6>
+                <p class="display-6 mb-0">${{ '%.2f' | format(indicadores.multas_pendientes) }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-6 col-xl-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h6 class="card-title">Préstamos por estado</h6>
+                <canvas id="grafico-prestamos-estado" height="220"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h6 class="card-title">Libros más prestados</h6>
+                <canvas id="grafico-libros-prestados" height="220"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h6 class="card-title">Préstamos por período (6 meses)</h6>
+                <canvas id="grafico-prestamos-periodo" height="220"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h6 class="card-title">Top deudores (multas pendientes)</h6>
+                <canvas id="grafico-top-deudores" height="220"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h5 class="card-title">Reportes disponibles</h5>
+        <p class="card-text text-muted">Consulta el detalle de préstamos, multas, inventario y más en la sección de reportes.</p>
+        <a href="{{ url_for('gerente.listado_reportes') }}" class="btn btn-primary">Ver reportes</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+    // Datos reales calculados en el backend (app/controllers/gerente/dashboard.py).
+    const DATOS_GRAFICOS = {{ graficos | tojson }};
+</script>
+<script src="{{ url_for('static', filename='js/dashboard_gerente.js') }}"></script>
+{% endblock %}

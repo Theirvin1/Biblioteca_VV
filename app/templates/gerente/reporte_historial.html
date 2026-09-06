@@ -1,0 +1,92 @@
+{% extends 'gerente/_base.html' %}
+{% from 'shared/_macros.html' import tabla_dinamica %}
+{% from 'shared/_paginacion.html' import control_paginacion %}
+
+{% block title %}{{ titulo }} - Gerente{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">{{ titulo }}</h2>
+    <a href="{{ url_for('gerente.listado_reportes') }}" class="btn btn-outline-secondary btn-sm">&larr; Volver a reportes</a>
+</div>
+
+<ul class="nav nav-pills mb-3">
+    {% for clave, reporte in reportes.items() %}
+    <li class="nav-item">
+        <a class="nav-link {% if clave == tipo %}active{% endif %}" href="{{ url_for('gerente.ver_reporte', tipo=clave) }}">{{ reporte.titulo }}</a>
+    </li>
+    {% endfor %}
+</ul>
+
+<div class="row g-3 mb-3">
+    <div class="col-12 col-lg-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h6 class="card-title">Movimientos por tipo</h6>
+                <canvas id="grafico-historial-tipo" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-8">
+        <form method="GET" class="card shadow-sm h-100">
+            <div class="card-body row g-2 align-items-end">
+                <div class="col-12 col-md-6">
+                    <label class="form-label small text-muted mb-1" for="q">Buscar</label>
+                    <input type="text" class="form-control" id="q" name="q" maxlength="100"
+                           value="{{ filtros.q }}" placeholder="Libro, ISBN o estudiante">
+                </div>
+                <div class="col-6 col-md-3">
+                    <label class="form-label small text-muted mb-1" for="tipo_movimiento">Tipo</label>
+                    <select class="form-select" id="tipo_movimiento" name="tipo_movimiento">
+                        <option value="">Todos</option>
+                        <option value="prestamo" {% if filtros.tipo_movimiento == 'prestamo' %}selected{% endif %}>Préstamo</option>
+                        <option value="devolucion" {% if filtros.tipo_movimiento == 'devolucion' %}selected{% endif %}>Devolución</option>
+                    </select>
+                </div>
+                <div class="col-6 col-md-3">
+                    <label class="form-label small text-muted mb-1" for="fecha_desde">Desde</label>
+                    <input type="date" class="form-control" id="fecha_desde" name="fecha_desde" value="{{ filtros.fecha_desde }}">
+                </div>
+                <div class="col-6 col-md-3">
+                    <label class="form-label small text-muted mb-1" for="fecha_hasta">Hasta</label>
+                    <input type="date" class="form-control" id="fecha_hasta" name="fecha_hasta" value="{{ filtros.fecha_hasta }}">
+                </div>
+                <div class="col-6 col-md-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-grow-1">Buscar</button>
+                    <a href="{{ url_for('gerente.ver_reporte', tipo='historial-movimientos') }}"
+                       class="btn btn-outline-secondary" title="Limpiar filtros">Limpiar</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    {{ tabla_dinamica(columnas, filas, mensaje_vacio='No hay movimientos que coincidan con esos criterios.') }}
+    {{ control_paginacion(paginacion, 'gerente.ver_reporte', dict(argumentos, tipo='historial-movimientos'), 'movimientos') }}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+    const GRAFICO_HISTORIAL = {{ grafico | tojson }};
+    document.addEventListener('DOMContentLoaded', function () {
+        const elemento = document.getElementById('grafico-historial-tipo');
+        if (!elemento || typeof Chart === 'undefined') return;
+        new Chart(elemento, {
+            type: 'bar',
+            data: {
+                labels: GRAFICO_HISTORIAL.labels,
+                datasets: [{ data: GRAFICO_HISTORIAL.valores, backgroundColor: ['#1a7504', '#6c757d'] }],
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+            },
+        });
+    });
+</script>
+{% endblock %}

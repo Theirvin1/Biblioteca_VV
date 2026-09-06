@@ -1,0 +1,91 @@
+{% extends 'bibliotecario/_base.html' %}
+
+{% block title %}Inicio - Bibliotecario{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Panel del bibliotecario</h2>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card text-bg-primary shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title">Libros activos</h6>
+                <p class="display-6 mb-0">{{ total_libros }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-bg-success shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title">Préstamos activos</h6>
+                <p class="display-6 mb-0">{{ prestamos_activos }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-bg-danger shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title">Préstamos vencidos</h6>
+                <p class="display-6 mb-0">{{ prestamos_vencidos }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-bg-secondary shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title">Estudiantes activos</h6>
+                <p class="display-6 mb-0">{{ total_estudiantes }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <a href="{{ url_for('bibliotecario.nuevo_libro') }}" class="btn btn-outline-primary w-100">+ Registrar libro</a>
+    </div>
+    <div class="col-md-3">
+        <a href="{{ url_for('bibliotecario.nuevo_estudiante') }}" class="btn btn-outline-primary w-100">+ Registrar estudiante</a>
+    </div>
+    <div class="col-md-3">
+        <a href="{{ url_for('bibliotecario.nuevo_prestamo') }}" class="btn btn-outline-primary w-100">+ Registrar préstamo</a>
+    </div>
+    <div class="col-md-3">
+        <a href="{{ url_for('bibliotecario.listado_devoluciones') }}" class="btn btn-outline-primary w-100">Registrar devolución</a>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header">Últimos préstamos registrados</div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Estudiante</th>
+                    <th>Libro</th>
+                    <th>Fecha límite</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for prestamo in ultimos_prestamos %}
+                <tr>
+                    <td>{{ prestamo.codigo_prestamo }}</td>
+                    <td>{{ prestamo.estudiante.nombres }} {{ prestamo.estudiante.apellidos }}</td>
+                    <td>{{ prestamo.ejemplar.libro.titulo }}</td>
+                    <td>{{ prestamo.fecha_limite.strftime('%d/%m/%Y') }}</td>
+                    <td>
+                        <span class="badge {% if prestamo.estado == 'activo' %}text-bg-success{% elif prestamo.estado == 'vencido' %}text-bg-danger{% else %}text-bg-secondary{% endif %}">
+                            {{ prestamo.estado }}
+                        </span>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="5" class="text-center text-muted py-3">Aún no hay préstamos registrados.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

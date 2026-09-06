@@ -1,0 +1,29 @@
+{% extends 'bibliotecario/_base.html' %}
+{% from 'shared/_credenciales.html' import tarjeta_credenciales %}
+
+{% block title %}Estudiante registrado - Bibliotecario{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Estudiante registrado</h2>
+
+{{ tarjeta_credenciales(
+    usuario.username,
+    password_temporal,
+    'Estudiante registrado correctamente',
+    estudiante.nombres ~ ' ' ~ estudiante.apellidos ~ ' · ' ~ (estudiante.carrera.nombre if estudiante.carrera else 'Sin carrera'),
+    url_for('bibliotecario.listado_estudiantes', nuevo=estudiante.id)
+) }}
+
+<div class="d-flex flex-wrap gap-2">
+    <a href="{{ url_for('bibliotecario.listado_estudiantes', nuevo=estudiante.id) }}" class="btn btn-primary">
+        Ver en el listado
+    </a>
+    <a href="{{ url_for('bibliotecario.nuevo_estudiante') }}" class="btn btn-outline-secondary">
+        Registrar otro estudiante
+    </a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/copiar_credenciales.js') }}"></script>
+{% endblock %}

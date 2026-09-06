@@ -1,0 +1,27 @@
+{#
+    Modal compartido para "Ver resumen". Una sola instancia por pagina: se
+    reutiliza para todos los libros de la tabla/catalogo (los datos los pone
+    static/js/resumen_libro.js al hacer clic en cada boton [data-accion="ver-resumen"]).
+#}
+<div class="modal fade" id="modal-resumen-libro" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-resumen-titulo">Resumen del libro</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex flex-wrap gap-3">
+                    <img id="modal-resumen-portada" src="" alt="Portada" class="portada-mini">
+                    <div class="flex-grow-1">
+                        <p class="text-muted small mb-2" id="modal-resumen-autores"></p>
+                        <p id="modal-resumen-texto" class="mb-0 resumen-texto"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>

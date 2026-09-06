@@ -1,0 +1,40 @@
+{% extends 'bibliotecario/_base.html' %}
+
+{% block title %}Registrar devolución - Bibliotecario{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Registrar devolución</h2>
+
+<div class="card shadow-sm mb-3">
+    <div class="card-body">
+        <h5 class="card-title">{{ prestamo.codigo_prestamo }}</h5>
+        <p class="mb-1"><strong>Estudiante:</strong> {{ prestamo.estudiante.nombres }} {{ prestamo.estudiante.apellidos }}</p>
+        <p class="mb-1"><strong>Libro:</strong> {{ prestamo.ejemplar.libro.titulo }}</p>
+        <p class="mb-1"><strong>Ejemplar:</strong> {{ prestamo.ejemplar.codigo_ejemplar }}</p>
+        <p class="mb-0"><strong>Fecha límite:</strong> {{ prestamo.fecha_limite.strftime('%d/%m/%Y') }}</p>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form method="POST" novalidate>
+            {{ form.hidden_tag() }}
+
+            <div class="mb-3">
+                {{ form.estado_ejemplar.label(class="form-label") }}
+                {{ form.estado_ejemplar(class="form-select") }}
+            </div>
+
+            <div class="mb-3">
+                {{ form.observaciones.label(class="form-label") }}
+                {{ form.observaciones(class="form-control", rows=3) }}
+            </div>
+
+            <div class="mt-3">
+                {{ form.submit(class="btn btn-primary") }}
+                <a href="{{ url_for('bibliotecario.listado_devoluciones') }}" class="btn btn-outline-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

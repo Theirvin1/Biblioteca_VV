@@ -1,0 +1,19 @@
+{#
+    Mensajes flash. El auto-ocultado se resuelve UNA sola vez aqui (marca
+    data-auto-cerrar) + static/js/mensajes.js, que carga shared/base.html:
+    ninguna pantalla necesita su propio JS para esto.
+
+    success / info : se cierran solos a los 4,5 s.
+    warning / danger : se quedan hasta que el usuario los cierre con la X.
+#}
+{% with mensajes = get_flashed_messages(with_categories=true) %}
+{% if mensajes %}
+{% for categoria, mensaje in mensajes %}
+<div class="alert alert-{{ categoria }} alert-dismissible fade show" role="alert"
+     {% if categoria in ('success', 'info') %}data-auto-cerrar="4500"{% endif %}>
+    {{ mensaje }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+</div>
+{% endfor %}
+{% endif %}
+{% endwith %}

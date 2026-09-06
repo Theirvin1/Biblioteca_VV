@@ -1,0 +1,129 @@
+{% extends 'bibliotecario/_base.html' %}
+
+{% block title %}Registrar libro - Bibliotecario{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Registrar nuevo libro</h2>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        {% set anio_min, anio_max = limites_anio_publicacion() %}
+        <form method="POST" enctype="multipart/form-data" novalidate>
+            {{ form.hidden_tag() }}
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    {{ form.portada.label(class="form-label") }}
+                    {{ form.portada(class="form-control", accept=".jpg,.jpeg,.png,.webp") }}
+                    <div class="form-text">JPG, PNG o WEBP, máximo 2 MB. Si no subes ninguna, se muestra una portada genérica.</div>
+                    {% for error in form.portada.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                </div>
+            </div>
+
+            <div class="row g-3 mt-0">
+                <div class="col-md-4">
+                    {{ form.isbn.label(class="form-label") }}
+                    {{ form.isbn(class="form-control", maxlength=13, inputmode="numeric",
+                                 autocomplete="off", placeholder="9789978000000") }}
+                    {% for error in form.isbn.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="col-md-8">
+                    {{ form.titulo.label(class="form-label") }}
+                    {{ form.titulo(class="form-control") }}
+                    {% for error in form.titulo.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                </div>
+
+                <div class="col-12">
+                    {{ form.subtitulo.label(class="form-label") }}
+                    {{ form.subtitulo(class="form-control") }}
+                </div>
+
+                <div class="col-md-6">
+                    {{ form.editorial_nombre.label(class="form-label") }}
+                    {{ form.editorial_nombre(class="form-control", list="lista-editoriales", placeholder="Nombre de la editorial") }}
+                    <datalist id="lista-editoriales">
+                        {% for editorial in editoriales %}
+                        <option value="{{ editorial.nombre }}">
+                        {% endfor %}
+                    </datalist>
+                    <div class="form-text">Si la editorial no existe, se creará automáticamente.</div>
+                    {% for error in form.editorial_nombre.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="col-md-6">
+                    {{ form.categoria_id.label(class="form-label") }}
+                    {{ form.categoria_id(class="form-select") }}
+                    {% for error in form.categoria_id.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                </div>
+
+                <div class="col-md-4">
+                    {{ form.anio_publicacion.label(class="form-label") }}
+                    {{ form.anio_publicacion(class="form-control", min=anio_min, max=anio_max) }}
+                    {% for error in form.anio_publicacion.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="col-md-4">
+                    {{ form.edicion.label(class="form-label") }}
+                    {{ form.edicion(class="form-control") }}
+                </div>
+                <div class="col-md-4">
+                    {{ form.num_paginas.label(class="form-label") }}
+                    {{ form.num_paginas(class="form-control") }}
+                </div>
+
+                <div class="col-md-6">
+                    {{ form.idioma.label(class="form-label") }}
+                    {{ form.idioma(class="form-control") }}
+                </div>
+                <div class="col-md-6">
+                    {{ form.stock_inicial.label(class="form-label") }}
+                    {{ form.stock_inicial(class="form-control") }}
+                    <div class="form-text">Se crearán automáticamente esa cantidad de ejemplares físicos.</div>
+                    {% for error in form.stock_inicial.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                </div>
+
+                <div class="col-12">
+                    {{ form.resumen.label(class="form-label") }}
+                    {{ form.resumen(class="form-control", rows=4, placeholder="Resumen o sinopsis del libro (opcional)...") }}
+                    {% for error in form.resumen.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                </div>
+
+                <div class="col-12">
+                    <hr>
+                    <label class="form-label">Autores</label>
+
+                    <div class="mb-2">
+                        <input type="text" id="buscar-autor" class="form-control" placeholder="Buscar autor existente por nombre o apellido...">
+                        <ul id="resultados-autores" class="list-group mt-1"></ul>
+                    </div>
+
+                    <div class="row g-2 align-items-end mb-2">
+                        <div class="col-md-4">
+                            <input type="text" id="nuevo-autor-nombres" class="form-control form-control-sm"
+                                   maxlength="100" placeholder="Nombres (autor nuevo)">
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" id="nuevo-autor-apellidos" class="form-control form-control-sm"
+                                   maxlength="100" placeholder="Apellidos (autor nuevo)">
+                        </div>
+                        <div class="col-md-4">
+                            <button type="button" id="btn-crear-autor" class="btn btn-outline-secondary btn-sm w-100">Agregar autor nuevo</button>
+                        </div>
+                    </div>
+
+                    <div id="autores-seleccionados" class="d-flex flex-wrap gap-2 mb-2"></div>
+                    <div id="autores-mensaje" class="small"></div>
+                    {{ form.autores_ids(id="autores_ids") }}
+                </div>
+            </div>
+
+            <div class="mt-4">
+                {{ form.submit(class="btn btn-primary") }}
+                <a href="{{ url_for('bibliotecario.listado_libros') }}" class="btn btn-outline-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/libros_nuevo.js') }}"></script>
+{% endblock %}

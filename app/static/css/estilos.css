@@ -1,0 +1,304 @@
+/* ==========================================================
+   Paleta institucional (referencia: SGA - UTEQ)
+   ========================================================== */
+:root {
+    --uteq-green: #1a7504;
+    --uteq-green-light: #22a005;
+    --uteq-green-dark: #145a03;
+    --uteq-green-bg: #f0f9f4;
+    --uteq-green-rgb: 26, 117, 4;
+}
+
+/* ==========================================================
+   Base
+   ========================================================== */
+body {
+    background-color: var(--uteq-green-bg);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: #212529;
+}
+
+a {
+    color: var(--uteq-green-dark);
+}
+
+a:hover {
+    color: var(--uteq-green);
+}
+
+/* ==========================================================
+   Navbar institucional (unificado en los tres roles)
+   ========================================================== */
+.navbar-uteq {
+    background-color: var(--uteq-green) !important;
+    border-bottom: 3px solid var(--uteq-green-dark);
+}
+
+.navbar-uteq .navbar-brand {
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.navbar-uteq .nav-link {
+    font-weight: 500;
+}
+
+.navbar-uteq .nav-link.active {
+    color: #fff !important;
+    font-weight: 700;
+    border-bottom: 2px solid #fff;
+}
+
+/* ==========================================================
+   Botones
+   ========================================================== */
+.btn-primary {
+    background-color: var(--uteq-green);
+    border-color: var(--uteq-green);
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+    background-color: var(--uteq-green-dark) !important;
+    border-color: var(--uteq-green-dark) !important;
+}
+
+.btn-outline-primary {
+    color: var(--uteq-green);
+    border-color: var(--uteq-green);
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus,
+.btn-outline-primary:active {
+    background-color: var(--uteq-green) !important;
+    border-color: var(--uteq-green) !important;
+    color: #fff !important;
+}
+
+.btn {
+    border-radius: 0.5rem;
+}
+
+/* ==========================================================
+   Tarjetas de indicadores y pestañas de reportes
+   ========================================================== */
+.text-bg-primary {
+    background-color: var(--uteq-green) !important;
+}
+
+.nav-pills .nav-link.active {
+    background-color: var(--uteq-green);
+}
+
+.nav-pills .nav-link {
+    color: var(--uteq-green-dark);
+}
+
+/* ==========================================================
+   Formularios
+   ========================================================== */
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--uteq-green-light);
+    box-shadow: 0 0 0 0.2rem rgba(var(--uteq-green-rgb), 0.15);
+}
+
+.form-label {
+    font-weight: 500;
+}
+
+/* ==========================================================
+   Cards
+   ========================================================== */
+.card {
+    border: none;
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.card-header {
+    background-color: #fff;
+    border-bottom: 1px solid #eef1ee;
+    font-weight: 600;
+}
+
+/* ==========================================================
+   Tablas
+   ========================================================== */
+.table thead {
+    background-color: var(--uteq-green-bg);
+}
+
+.table td,
+.table th {
+    vertical-align: middle;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(var(--uteq-green-rgb), 0.05);
+}
+
+/* ==========================================================
+   Badges
+   ========================================================== */
+.badge {
+    font-weight: 600;
+    padding: 0.45em 0.7em;
+}
+
+#autores-seleccionados .badge {
+    font-size: 0.9rem;
+}
+
+/* ==========================================================
+   Portadas de libros
+   ========================================================== */
+.portada-miniatura {
+    width: 36px;
+    height: 48px;
+    object-fit: cover;
+}
+
+.portada-catalogo {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-top-left-radius: 0.75rem;
+    border-top-right-radius: 0.75rem;
+}
+
+.portada-detalle {
+    width: 100%;
+    max-width: 260px;
+    object-fit: cover;
+}
+
+/* ==========================================================
+   Varios
+   ========================================================== */
+.list-group-item-action {
+    user-select: none;
+}
+
+.display-6 {
+    font-weight: 700;
+}
+
+/* ==========================================================
+   Login
+   ========================================================== */
+.login-wrapper {
+    min-height: calc(100vh - 180px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-card-wrapper {
+    max-width: 900px;
+    width: 100%;
+    background: #fff;
+}
+
+.login-brand {
+    background: linear-gradient(160deg, var(--uteq-green) 0%, var(--uteq-green-dark) 100%);
+}
+
+.login-brand h2 {
+    font-size: 1.6rem;
+}
+
+/* ==========================================================
+   Responsive
+   ========================================================== */
+@media (max-width: 576px) {
+    .display-6 {
+        font-size: 1.75rem;
+    }
+
+    .navbar-brand {
+        font-size: 1rem;
+    }
+
+    .login-wrapper {
+        min-height: auto;
+        padding: 1.5rem 0;
+    }
+
+    .d-flex.justify-content-between {
+        flex-wrap: wrap;
+        row-gap: 0.5rem;
+    }
+}
+
+/* ==========================================================
+   Registro de prestamo (tarjetas de estudiante/libro y proceso)
+   ========================================================== */
+.avatar-iniciales {
+    width: 64px;
+    height: 64px;
+    flex: 0 0 64px;
+    border-radius: 50%;
+    background: linear-gradient(160deg, var(--uteq-green) 0%, var(--uteq-green-dark) 100%);
+    color: #fff;
+    font-size: 1.4rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.portada-mini {
+    width: 72px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 6px;
+    background-color: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.portada-mini-tabla {
+    width: 44px;
+    height: 62px;
+    object-fit: cover;
+    border-radius: 4px;
+    background-color: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* Capa de "Procesando...": bloquea la pantalla mientras se guarda el lote,
+   para que no se pueda enviar el formulario dos veces. */
+.overlay-procesando {
+    position: fixed;
+    inset: 0;
+    z-index: 1080;
+    background-color: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+@media (max-width: 576px) {
+    .avatar-iniciales {
+        width: 52px;
+        height: 52px;
+        flex: 0 0 52px;
+        font-size: 1.1rem;
+    }
+
+    .portada-mini {
+        width: 56px;
+        height: 78px;
+    }
+}
+
+/* ==========================================================
+   Modal "Ver resumen"
+   ========================================================== */
+.resumen-texto {
+    white-space: pre-line;
+}

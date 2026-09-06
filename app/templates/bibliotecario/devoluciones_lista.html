@@ -1,0 +1,87 @@
+{% extends 'bibliotecario/_base.html' %}
+{% from 'shared/_paginacion.html' import control_paginacion %}
+
+{% block title %}Devoluciones - Bibliotecario{% endblock %}
+
+{% block content %}
+<h2 class="mb-3">Devoluciones</h2>
+
+{# Pestañas de estado: una operación completada no se pierde, cambia de pestaña. #}
+<ul class="nav nav-tabs mb-3 flex-wrap">
+    {% for clave, etiqueta in [
+        ('pendientes', 'Pendientes'), ('completadas', 'Completadas'), ('todas', 'Todas')
+    ] %}
+    <li class="nav-item">
+        <a class="nav-link {% if filtros.estado == clave %}active{% endif %}"
+           href="{{ url_for('bibliotecario.listado_devoluciones', estado=clave, q=filtros.q or None) }}">
+            {{ etiqueta }}
+        </a>
+    </li>
+    {% endfor %}
+</ul>
+
+<form method="GET" class="card shadow-sm mb-3">
+    <input type="hidden" name="estado" value="{{ filtros.estado }}">
+    <div class="card-body row g-2 align-items-end">
+        <div class="col-12 col-md-6">
+            <label class="form-label small text-muted mb-1" for="q">Buscar</label>
+            <input type="text" class="form-control" id="q" name="q" maxlength="100"
+                   value="{{ filtros.q }}" placeholder="Código de préstamo u operación, cédula o estudiante">
+        </div>
+        <div class="col-12 col-md-4 d-flex gap-2">
+            <button type="submit" class="btn btn-primary flex-grow-1">Buscar</button>
+            <a href="{{ url_for('bibliotecario.listado_devoluciones', estado=filtros.estado) }}"
+               class="btn btn-outline-secondary" title="Limpiar filtros">Limpiar</a>
+        </div>
+    </div>
+</form>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+            <thead>
+                <tr>
+                    <th>Operación</th>
+                    <th>Estudiante</th>
+                    <th class="text-center">Libros</th>
+                    <th class="text-center">Devueltos</th>
+                    <th class="text-center">Pendientes</th>
+                    <th>Fecha límite</th>
+                    <th>Estado</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for operacion in operaciones %}
+                <tr>
+                    <td>
+                        <span class="fw-semibold">{{ operacion.codigo }}</span>
+                        {% if not operacion.es_grupo %}
+                        <div class="text-muted small">Préstamo individual</div>
+                        {% endif %}
+                    </td>
+                    <td>{{ operacion.estudiante.nombres }} {{ operacion.estudiante.apellidos }}</td>
+                    <td class="text-center">{{ operacion.total }}</td>
+                    <td class="text-center">{{ operacion.devueltos }}</td>
+                    <td class="text-center">{{ operacion.pendientes }}</td>
+                    <td>{{ operacion.fecha_limite.strftime('%d/%m/%Y') }}</td>
+                    <td><span class="badge text-bg-{{ operacion.estado_badge }}">{{ operacion.estado }}</span></td>
+                    <td class="text-end">
+                        {% if operacion.pendientes > 0 %}
+                        <a href="{{ url_for('bibliotecario.devolucion_operacion', prestamo_id=operacion.representante_id) }}"
+                           class="btn btn-sm btn-outline-primary">Registrar devolución</a>
+                        {% else %}
+                        <a href="{{ url_for('bibliotecario.detalle_prestamo', prestamo_id=operacion.representante_id) }}"
+                           class="btn btn-sm btn-outline-secondary">Ver detalle</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="8" class="text-center text-muted py-3">No se encontraron operaciones con esos criterios.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {{ control_paginacion(paginacion, 'bibliotecario.listado_devoluciones', argumentos, 'operaciones') }}
+</div>
+{% endblock %}

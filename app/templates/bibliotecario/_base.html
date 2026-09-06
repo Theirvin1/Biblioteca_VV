@@ -1,0 +1,38 @@
+{% extends 'shared/base.html' %}
+
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-dark navbar-uteq">
+    <div class="container">
+        <a class="navbar-brand" href="{{ url_for('bibliotecario.inicio') }}">Biblioteca · Bibliotecario</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navBibliotecario">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navBibliotecario">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'bibliotecario.inicio' %}active{% endif %}"
+                       href="{{ url_for('bibliotecario.inicio') }}">Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint in ['bibliotecario.listado_libros', 'bibliotecario.nuevo_libro'] %}active{% endif %}"
+                       href="{{ url_for('bibliotecario.listado_libros') }}">Libros</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint in ['bibliotecario.listado_estudiantes', 'bibliotecario.nuevo_estudiante'] %}active{% endif %}"
+                       href="{{ url_for('bibliotecario.listado_estudiantes') }}">Estudiantes</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint in ['bibliotecario.listado_prestamos', 'bibliotecario.nuevo_prestamo', 'bibliotecario.detalle_prestamo'] %}active{% endif %}"
+                       href="{{ url_for('bibliotecario.listado_prestamos') }}">Préstamos</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint in ['bibliotecario.listado_devoluciones', 'bibliotecario.registrar_devolucion', 'bibliotecario.devolucion_operacion'] %}active{% endif %}"
+                       href="{{ url_for('bibliotecario.listado_devoluciones') }}">Devoluciones</a>
+                </li>
+            </ul>
+            <span class="navbar-text me-3">{{ current_user.username }}</span>
+            <a class="btn btn-outline-light btn-sm" href="{{ url_for('auth.logout') }}">Cerrar sesión</a>
+        </div>
+    </div>
+</nav>
+{% endblock %}

@@ -1,0 +1,46 @@
+{#
+    Bloque de credenciales temporales, compartido por el registro de estudiante
+    y por el restablecimiento de contraseña del gerente.
+
+    La clave llega como variable de la peticion que la genero: no hay ninguna
+    ruta GET que pueda volver a mostrarla, y no se guarda en BD ni en session.
+
+    `url_segura` es la URL GET con la que static/js/copiar_credenciales.js
+    reemplaza (history.replaceState) la entrada del POST en el historial: si
+    despues se recarga con F5, el navegador hace ese GET en vez de reenviar el
+    POST (que generaria otra clave o intentaria recrear el registro).
+#}
+{% macro tarjeta_credenciales(username, password_temporal, titulo, descripcion='', url_segura='') %}
+<div class="card shadow-sm mb-3" data-credenciales data-url-segura="{{ url_segura }}">
+    <div class="card-body">
+        <h5 class="card-title text-success">{{ titulo }}</h5>
+        {% if descripcion %}<p class="text-muted mb-3">{{ descripcion }}</p>{% endif %}
+
+        <dl class="row mb-3">
+            <dt class="col-sm-3">Usuario</dt>
+            <dd class="col-sm-9"><code class="fs-6">{{ username }}</code></dd>
+
+            <dt class="col-sm-3">Contraseña temporal</dt>
+            <dd class="col-sm-9"><code class="fs-5 credencial-temporal">{{ password_temporal }}</code></dd>
+        </dl>
+
+        <div class="d-flex flex-wrap align-items-center gap-3">
+            <button type="button" class="btn btn-outline-primary"
+                    data-accion="copiar-credenciales"
+                    data-usuario="{{ username }}"
+                    data-password="{{ password_temporal }}">
+                Copiar credenciales
+            </button>
+            <span id="aviso-copiado" class="small d-none"></span>
+        </div>
+
+        <div class="alert alert-warning mt-3 mb-0">
+            <strong>Esta contraseña se muestra una sola vez.</strong>
+            No queda guardada en el sistema (solo se conserva su versión cifrada).
+            Si se pierde, el gerente deberá generar una nueva desde
+            <em>Gestión de usuarios &rarr; Restablecer contraseña</em>.
+            La persona deberá cambiarla al iniciar sesión.
+        </div>
+    </div>
+</div>
+{% endmacro %}

@@ -1,0 +1,132 @@
+{% extends 'gerente/_base.html' %}
+{% from 'shared/_paginacion.html' import control_paginacion %}
+
+{% block title %}Gestión de usuarios - Gerente{% endblock %}
+
+{% block content %}
+<h2 class="mb-3">Gestión de usuarios</h2>
+
+<form method="GET" class="card shadow-sm mb-3">
+    <div class="card-body row g-2 align-items-end">
+        <div class="col-12 col-md-5">
+            <label class="form-label small text-muted mb-1" for="q">Buscar</label>
+            <input type="text" class="form-control" id="q" name="q" maxlength="100"
+                   value="{{ filtros.q }}" placeholder="Usuario, cédula, nombres o apellidos">
+        </div>
+        <div class="col-6 col-md-2">
+            <label class="form-label small text-muted mb-1" for="rol">Rol</label>
+            <select class="form-select" id="rol" name="rol">
+                <option value="">Todos</option>
+                {% for valor in roles %}
+                <option value="{{ valor }}" {% if filtros.rol == valor %}selected{% endif %}>{{ valor | capitalize }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-6 col-md-2">
+            <label class="form-label small text-muted mb-1" for="estado">Estado</label>
+            <select class="form-select" id="estado" name="estado">
+                <option value="">Todos</option>
+                <option value="activo" {% if filtros.estado == 'activo' %}selected{% endif %}>Activo</option>
+                <option value="inactivo" {% if filtros.estado == 'inactivo' %}selected{% endif %}>Inactivo</option>
+            </select>
+        </div>
+        <div class="col-12 col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-primary flex-grow-1">Buscar</button>
+            <a href="{{ url_for('gerente.listado_usuarios') }}"
+               class="btn btn-outline-secondary" title="Limpiar filtros">Limpiar</a>
+        </div>
+    </div>
+</form>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+            <thead>
+                <tr>
+                    <th>Usuario</th>
+                    <th>Persona asociada</th>
+                    <th>Cédula</th>
+                    <th>Rol</th>
+                    <th>Estado</th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fila in filas %}
+                <tr>
+                    <td>
+                        <span class="fw-semibold">{{ fila.usuario.username }}</span>
+                        {% if fila.es_uno_mismo %}
+                        <span class="badge text-bg-info ms-1">Tú</span>
+                        {% endif %}
+                        {% if fila.usuario.debe_cambiar_password %}
+                        <div class="text-muted small">Debe cambiar contraseña</div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if fila.estudiante %}
+                        {{ fila.estudiante.nombres }} {{ fila.estudiante.apellidos }}
+                        {% else %}
+                        <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ fila.estudiante.cedula if fila.estudiante else '—' }}</td>
+                    <td><span class="badge text-bg-secondary">{{ fila.usuario.rol }}</span></td>
+                    <td>
+                        {% if fila.usuario.activo %}
+                        <span class="badge text-bg-success">Activo</span>
+                        {% else %}
+                        <span class="badge text-bg-danger">Inactivo</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        <div class="d-flex flex-wrap gap-1 justify-content-end">
+                            {# Activar / Desactivar: se envia el estado deseado,
+                               no un toggle, para que un doble POST sea idempotente. #}
+                            <form method="POST" class="d-inline"
+                                  action="{{ url_for('gerente.cambiar_estado_usuario', usuario_id=fila.usuario.id) }}"
+                                  onsubmit="return confirm('{% if fila.usuario.activo %}¿Desactivar este usuario?{% else %}¿Activar este usuario?{% endif %}');">
+                                {{ form.hidden_tag() }}
+                                <input type="hidden" name="accion"
+                                       value="{% if fila.usuario.activo %}desactivar{% else %}activar{% endif %}">
+                                <button type="submit"
+                                        class="btn btn-sm {% if fila.usuario.activo %}btn-outline-danger{% else %}btn-outline-success{% endif %}"
+                                        {% if fila.usuario.activo and fila.es_uno_mismo %}disabled title="No puedes desactivar tu propia cuenta"{% endif %}>
+                                    {% if fila.usuario.activo %}Desactivar{% else %}Activar{% endif %}
+                                </button>
+                            </form>
+
+                            {# Restablecer contraseña #}
+                            <form method="POST" class="d-inline"
+                                  action="{{ url_for('gerente.restablecer_password', usuario_id=fila.usuario.id) }}"
+                                  onsubmit="return confirm('¿Restablecer contraseña de este usuario? Se generará una clave temporal nueva que se mostrará una sola vez.');">
+                                {{ form.hidden_tag() }}
+                                <button type="submit" class="btn btn-sm btn-outline-primary">Restablecer contraseña</button>
+                            </form>
+
+                            {# Cambio de rol: solo cuentas SIN ficha de estudiante #}
+                            {% if fila.puede_cambiar_rol %}
+                            {% set rol_destino = 'gerente' if fila.usuario.rol == 'bibliotecario' else 'bibliotecario' %}
+                            <form method="POST" class="d-inline"
+                                  action="{{ url_for('gerente.cambiar_rol_usuario', usuario_id=fila.usuario.id) }}"
+                                  onsubmit="return confirm('¿Cambiar el rol de esta cuenta a {{ rol_destino }}?');">
+                                {{ form.hidden_tag() }}
+                                <input type="hidden" name="rol" value="{{ rol_destino }}">
+                                <button type="submit" class="btn btn-sm btn-outline-secondary"
+                                        {% if fila.es_uno_mismo %}disabled title="No puedes cambiar tu propio rol"{% endif %}>
+                                    Pasar a {{ rol_destino }}
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6" class="text-center text-muted py-3">No se encontraron usuarios con esos criterios.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {{ control_paginacion(paginacion, 'gerente.listado_usuarios', argumentos, 'usuarios') }}
+</div>
+{% endblock %}

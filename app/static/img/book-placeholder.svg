@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 320" role="img" aria-label="Sin portada disponible">
+  <rect width="240" height="320" fill="#f0f9f4"/>
+  <rect x="1" y="1" width="238" height="318" fill="none" stroke="#c9e4cf" stroke-width="2"/>
+  <g fill="none" stroke="#1a7504" stroke-width="6" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M60 90 h60 a14 14 0 0 1 14 14 v110 a10 10 0 0 0 -10 -8 h-64 z"/>
+    <path d="M180 90 h-60 a14 14 0 0 0 -14 14 v110 a10 10 0 0 1 10 -8 h64 z"/>
+    <line x1="120" y1="104" x2="120" y2="206"/>
+  </g>
+  <text x="120" y="245" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#145a03" text-anchor="middle">Sin portada</text>
+</svg>

@@ -1,0 +1,45 @@
+{% extends 'estudiante/_base.html' %}
+{% from 'shared/_macros.html' import portada_libro %}
+
+{% block title %}{{ libro.titulo }} - Catálogo{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('estudiante.listado_catalogo') }}" class="btn btn-outline-secondary btn-sm mb-3">&larr; Volver al catálogo</a>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="row g-4">
+            <div class="col-md-3 text-center text-md-start">
+                {{ portada_libro(libro, css_class='portada-detalle rounded shadow-sm') }}
+            </div>
+            <div class="col-md-9">
+                <h2 class="card-title">{{ libro.titulo }}</h2>
+                {% if libro.subtitulo %}<h5 class="text-muted">{{ libro.subtitulo }}</h5>{% endif %}
+
+                <p class="mb-1"><strong>Autor(es):</strong> {{ autores | join(', ') if autores else 'No especificado' }}</p>
+                <p class="mb-1"><strong>ISBN:</strong> {{ libro.isbn }}</p>
+                <p class="mb-1"><strong>Editorial:</strong> {{ libro.editorial.nombre if libro.editorial else '-' }}</p>
+                <p class="mb-1"><strong>Categoría:</strong> {{ libro.categoria.nombre if libro.categoria else '-' }}</p>
+                <p class="mb-1"><strong>Año de publicación:</strong> {{ libro.anio_publicacion or '-' }}</p>
+                <p class="mb-1"><strong>Edición:</strong> {{ libro.edicion or '-' }}</p>
+                <p class="mb-1"><strong>Número de páginas:</strong> {{ libro.num_paginas or '-' }}</p>
+                <p class="mb-1"><strong>Idioma:</strong> {{ libro.idioma }}</p>
+                <p class="mb-0">
+                    <strong>Disponibilidad:</strong>
+                    <span class="badge {% if libro.stock_disponible > 0 %}text-bg-success{% else %}text-bg-secondary{% endif %}">
+                        {{ libro.stock_disponible }} de {{ libro.stock_total }} disponibles
+                    </span>
+                </p>
+            </div>
+        </div>
+
+        <hr>
+        <h5>Resumen / Sinopsis</h5>
+        {% if libro.resumen %}
+        <p class="mb-0 resumen-texto">{{ libro.resumen }}</p>
+        {% else %}
+        <p class="text-muted fst-italic mb-0">No hay un resumen disponible para este libro.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends 'bibliotecario/_base.html' %}
+
+{% block title %}Registrar estudiante - Bibliotecario{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Registrar nuevo estudiante</h2>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        {% set nacimiento_min, nacimiento_max = limites_fecha_nacimiento() %}
+        <form method="POST" novalidate>
+            {{ form.hidden_tag() }}
+
+            <div class="row g-3">
+                <div class="col-md-4">
+                    {{ form.cedula.label(class="form-label") }}
+                    {{ form.cedula(class="form-control", maxlength=10, inputmode="numeric",
+                                   autocomplete="off") }}
+                    <div id="cedula-mensaje" class="small"></div>
+                    {% for error in form.cedula.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="col-md-4">
+                    {{ form.nombres.label(class="form-label") }}
+                    {{ form.nombres(class="form-control") }}
+                    {% for error in form.nombres.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="col-md-4">
+                    {{ form.apellidos.label(class="form-label") }}
+                    {{ form.apellidos(class="form-control") }}
+                    {% for error in form.apellidos.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                </div>
+
+                <div class="col-md-6">
+                    {{ form.correo.label(class="form-label") }}
+                    {{ form.correo(class="form-control", type="email", autocomplete="email") }}
+                    {% for error in form.correo.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="col-md-6">
+                    {{ form.telefono.label(class="form-label") }}
+                    {{ form.telefono(class="form-control", maxlength=10, inputmode="numeric",
+                                     autocomplete="tel") }}
+                    {% for error in form.telefono.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                </div>
+
+                <div class="col-md-6">
+                    {{ form.carrera_id.label(class="form-label") }}
+                    {{ form.carrera_id(class="form-select") }}
+                    {% for error in form.carrera_id.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="col-md-3">
+                    {{ form.fecha_nacimiento.label(class="form-label") }}
+                    {{ form.fecha_nacimiento(class="form-control", required=true,
+                                             min=nacimiento_min, max=nacimiento_max) }}
+                    {% for error in form.fecha_nacimiento.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="col-md-3">
+                    {{ form.genero.label(class="form-label") }}
+                    {{ form.genero(class="form-select") }}
+                    {% for error in form.genero.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                </div>
+            </div>
+
+            <div class="mt-4">
+                {{ form.submit(class="btn btn-primary") }}
+                <a href="{{ url_for('bibliotecario.listado_estudiantes') }}" class="btn btn-outline-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/estudiantes_nuevo.js') }}"></script>
+{% endblock %}

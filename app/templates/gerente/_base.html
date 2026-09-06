@@ -1,0 +1,30 @@
+{% extends 'shared/base.html' %}
+
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-dark navbar-uteq">
+    <div class="container">
+        <a class="navbar-brand" href="{{ url_for('gerente.dashboard') }}">Biblioteca · Gerente</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navGerente">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navGerente">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'gerente.dashboard' %}active{% endif %}"
+                       href="{{ url_for('gerente.dashboard') }}">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint in ['gerente.listado_reportes', 'gerente.ver_reporte'] %}active{% endif %}"
+                       href="{{ url_for('gerente.listado_reportes') }}">Reportes</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint in ['gerente.listado_usuarios', 'gerente.restablecer_password'] %}active{% endif %}"
+                       href="{{ url_for('gerente.listado_usuarios') }}">Usuarios</a>
+                </li>
+            </ul>
+            <span class="navbar-text me-3">{{ current_user.username }}</span>
+            <a class="btn btn-outline-light btn-sm" href="{{ url_for('auth.logout') }}">Cerrar sesión</a>
+        </div>
+    </div>
+</nav>
+{% endblock %}

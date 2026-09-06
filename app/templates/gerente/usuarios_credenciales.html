@@ -1,0 +1,22 @@
+{% extends 'gerente/_base.html' %}
+{% from 'shared/_credenciales.html' import tarjeta_credenciales %}
+
+{% block title %}Contraseña restablecida - Gerente{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Contraseña restablecida</h2>
+
+{{ tarjeta_credenciales(
+    usuario.username,
+    password_temporal,
+    'Contraseña restablecida correctamente',
+    (estudiante.nombres ~ ' ' ~ estudiante.apellidos) if estudiante else ('Cuenta de ' ~ usuario.rol),
+    url_for('gerente.listado_usuarios')
+) }}
+
+<a href="{{ url_for('gerente.listado_usuarios') }}" class="btn btn-primary">Volver a gestión de usuarios</a>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/copiar_credenciales.js') }}"></script>
+{% endblock %}

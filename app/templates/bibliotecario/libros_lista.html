@@ -1,0 +1,89 @@
+{% extends 'bibliotecario/_base.html' %}
+{% from 'shared/_macros.html' import portada_libro, autores_libro, boton_ver_resumen %}
+{% from 'shared/_paginacion.html' import control_paginacion, badge_nuevo %}
+
+{% block title %}Libros - Bibliotecario{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <h2 class="mb-0">Catálogo de libros</h2>
+    <a href="{{ url_for('bibliotecario.nuevo_libro') }}" class="btn btn-primary">+ Registrar libro</a>
+</div>
+
+<form method="GET" class="card shadow-sm mb-3">
+    <div class="card-body row g-2 align-items-end">
+        <div class="col-12 col-md-4">
+            <label class="form-label small text-muted mb-1" for="q">Buscar</label>
+            <input type="text" class="form-control" id="q" name="q" maxlength="100"
+                   value="{{ filtros.q }}" placeholder="Título, ISBN o autor">
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small text-muted mb-1" for="categoria">Categoría</label>
+            <select class="form-select" id="categoria" name="categoria">
+                <option value="">Todas</option>
+                {% for categoria in categorias %}
+                <option value="{{ categoria.id }}" {% if filtros.categoria == categoria.id %}selected{% endif %}>
+                    {{ categoria.nombre }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small text-muted mb-1" for="disponibilidad">Disponibilidad</label>
+            <select class="form-select" id="disponibilidad" name="disponibilidad">
+                <option value="">Todos</option>
+                <option value="disponibles" {% if filtros.disponibilidad == 'disponibles' %}selected{% endif %}>Con stock</option>
+                <option value="agotados" {% if filtros.disponibilidad == 'agotados' %}selected{% endif %}>Sin stock</option>
+            </select>
+        </div>
+        <div class="col-12 col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-primary flex-grow-1">Buscar</button>
+            <a href="{{ url_for('bibliotecario.listado_libros') }}"
+               class="btn btn-outline-secondary" title="Limpiar filtros">Limpiar</a>
+        </div>
+    </div>
+</form>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Título</th>
+                    <th>ISBN</th>
+                    <th>Editorial</th>
+                    <th>Categoría</th>
+                    <th>Stock</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for libro in libros %}
+                <tr {% if libro.id == nuevo_id %}class="table-warning"{% endif %}>
+                    <td style="width: 48px;">{{ portada_libro(libro, css_class='portada-miniatura rounded') }}</td>
+                    <td>
+                        {{ libro.titulo }}
+                        {% if libro.id == nuevo_id %}{{ badge_nuevo() }}{% endif %}
+                    </td>
+                    <td>{{ libro.isbn }}</td>
+                    <td>{{ libro.editorial.nombre if libro.editorial else '-' }}</td>
+                    <td>{{ libro.categoria.nombre if libro.categoria else '-' }}</td>
+                    <td>{{ libro.stock_disponible }} / {{ libro.stock_total }}</td>
+                    <td class="text-end">{{ boton_ver_resumen(libro, autores_libro(libro)) }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="7" class="text-center text-muted py-3">No se encontraron libros con esos criterios.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {{ control_paginacion(paginacion, 'bibliotecario.listado_libros', argumentos, 'libros') }}
+</div>
+
+{% include 'shared/_modal_resumen.html' %}
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/resumen_libro.js') }}"></script>
+{% endblock %}

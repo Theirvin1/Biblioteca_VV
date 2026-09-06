@@ -1,0 +1,87 @@
+{% extends 'bibliotecario/_base.html' %}
+{% from 'shared/_paginacion.html' import control_paginacion, badge_nuevo %}
+
+{% block title %}Estudiantes - Bibliotecario{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <h2 class="mb-0">Estudiantes registrados</h2>
+    <a href="{{ url_for('bibliotecario.nuevo_estudiante') }}" class="btn btn-primary">+ Registrar estudiante</a>
+</div>
+
+<form method="GET" class="card shadow-sm mb-3">
+    <div class="card-body row g-2 align-items-end">
+        <div class="col-12 col-md-4">
+            <label class="form-label small text-muted mb-1" for="q">Buscar</label>
+            <input type="text" class="form-control" id="q" name="q" maxlength="100"
+                   value="{{ filtros.q }}" placeholder="Cédula, nombres, apellidos o correo">
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small text-muted mb-1" for="estado">Estado</label>
+            <select class="form-select" id="estado" name="estado">
+                <option value="">Todos</option>
+                <option value="activo" {% if filtros.estado == 'activo' %}selected{% endif %}>Activo</option>
+                <option value="suspendido" {% if filtros.estado == 'suspendido' %}selected{% endif %}>Suspendido</option>
+            </select>
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small text-muted mb-1" for="carrera">Carrera</label>
+            <select class="form-select" id="carrera" name="carrera">
+                <option value="">Todas</option>
+                {% for carrera in carreras %}
+                <option value="{{ carrera.id }}" {% if filtros.carrera == carrera.id %}selected{% endif %}>
+                    {{ carrera.nombre }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-12 col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-primary flex-grow-1">Buscar</button>
+            <a href="{{ url_for('bibliotecario.listado_estudiantes') }}"
+               class="btn btn-outline-secondary" title="Limpiar filtros">Limpiar</a>
+        </div>
+    </div>
+</form>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+            <thead>
+                <tr>
+                    <th>Cédula</th>
+                    <th>Nombre completo</th>
+                    <th>Correo</th>
+                    <th>Carrera</th>
+                    <th>Estado</th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for estudiante in estudiantes %}
+                <tr {% if estudiante.id == nuevo_id %}class="table-warning"{% endif %}>
+                    <td>{{ estudiante.cedula }}</td>
+                    <td>
+                        {{ estudiante.nombres }} {{ estudiante.apellidos }}
+                        {% if estudiante.id == nuevo_id %}{{ badge_nuevo() }}{% endif %}
+                    </td>
+                    <td>{{ estudiante.correo }}</td>
+                    <td>{{ estudiante.carrera.nombre if estudiante.carrera else '-' }}</td>
+                    <td>
+                        <span class="badge {% if estudiante.estado == 'activo' %}text-bg-success{% else %}text-bg-secondary{% endif %}">
+                            {{ estudiante.estado }}
+                        </span>
+                    </td>
+                    <td class="text-end">
+                        <a href="{{ url_for('bibliotecario.editar_estudiante', estudiante_id=estudiante.id) }}"
+                           class="btn btn-sm btn-outline-secondary">Editar</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6" class="text-center text-muted py-3">No se encontraron estudiantes con esos criterios.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {{ control_paginacion(paginacion, 'bibliotecario.listado_estudiantes', argumentos, 'estudiantes') }}
+</div>
+{% endblock %}

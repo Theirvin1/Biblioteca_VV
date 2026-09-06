@@ -1,0 +1,57 @@
+{% extends 'estudiante/_base.html' %}
+{% from 'shared/_macros.html' import portada_libro, autores_libro, boton_ver_resumen %}
+
+{% block title %}Catálogo - Estudiante{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Catálogo de libros</h2>
+
+<div class="row g-2 mb-3">
+    <div class="col-md-8">
+        <input type="text" id="buscador-catalogo" class="form-control" placeholder="Buscar por título...">
+    </div>
+    <div class="col-md-4">
+        <select id="filtro-categoria" class="form-select">
+            <option value="">Todas las categorías</option>
+            {% for categoria in categorias %}
+            <option value="{{ categoria.id }}">{{ categoria.nombre }}</option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+
+<div class="row g-3" id="contenedor-libros">
+    {% for libro in libros %}
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+            {{ portada_libro(libro, css_class='portada-catalogo') }}
+            <div class="card-body">
+                <h5 class="card-title">{{ libro.titulo }}</h5>
+                <h6 class="card-subtitle mb-2 text-muted">{{ libro.categoria.nombre if libro.categoria else '-' }}</h6>
+                <p class="card-text small">Editorial: {{ libro.editorial.nombre if libro.editorial else '-' }}</p>
+                <p class="card-text">
+                    <span class="badge {% if libro.stock_disponible > 0 %}text-bg-success{% else %}text-bg-secondary{% endif %}">
+                        {{ libro.stock_disponible }} disponible(s)
+                    </span>
+                </p>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{{ url_for('estudiante.detalle_libro', isbn=libro.isbn) }}" class="btn btn-outline-primary btn-sm">Ver detalle</a>
+                    {{ boton_ver_resumen(libro, autores_libro(libro)) }}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12">
+        <p class="text-muted text-center py-4">No hay libros disponibles en el catálogo por el momento.</p>
+    </div>
+    {% endfor %}
+</div>
+
+{% include 'shared/_modal_resumen.html' %}
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/estudiante_catalogo.js') }}"></script>
+<script src="{{ url_for('static', filename='js/resumen_libro.js') }}"></script>
+{% endblock %}

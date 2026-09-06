@@ -1,0 +1,108 @@
+{% extends 'bibliotecario/_base.html' %}
+
+{% block title %}Detalle del préstamo - Bibliotecario{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <h2 class="mb-0">Operación {{ operacion.codigo }}</h2>
+    <a href="{{ url_for('bibliotecario.listado_prestamos') }}" class="btn btn-outline-secondary">Volver</a>
+</div>
+
+<div class="card shadow-sm mb-3">
+    <div class="card-body">
+        <div class="d-flex flex-wrap gap-3 align-items-center">
+            <div class="avatar-iniciales">{{ estudiante.iniciales | default('?', true) }}</div>
+            <div class="flex-grow-1">
+                <h5 class="mb-1">{{ operacion.estudiante.nombres }} {{ operacion.estudiante.apellidos }}</h5>
+                <div class="text-muted small">
+                    Cédula {{ operacion.estudiante.cedula }}
+                    {% if estudiante.edad is not none %} · {{ estudiante.edad }} años{% endif %}
+                </div>
+                <div class="text-muted small">{{ estudiante.carrera | default('Sin carrera', true) }}</div>
+            </div>
+            <div class="text-end">
+                <span class="badge text-bg-{{ operacion.estado_badge }}">{{ operacion.estado }}</span>
+                <div class="text-muted small mt-1">
+                    Devueltos: {{ operacion.devueltos }} · Pendientes: {{ operacion.pendientes }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-white fw-semibold text-uppercase small text-muted">
+        Libros de la operación ({{ operacion.total }})
+    </div>
+    <div class="table-responsive">
+        <table class="table mb-0 align-middle">
+            <thead>
+                <tr>
+                    <th style="width: 72px;">Portada</th>
+                    <th>Código</th>
+                    <th>Libro</th>
+                    <th>Ejemplar</th>
+                    <th>Fecha límite</th>
+                    <th>Estado</th>
+                    <th>Devolución</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for prestamo in operacion.prestamos %}
+                <tr>
+                    <td>
+                        <img src="{{ url_portada(prestamo.ejemplar.libro.portada_archivo) }}"
+                             alt="Portada" class="portada-mini-tabla">
+                    </td>
+                    <td class="small">{{ prestamo.codigo_prestamo }}</td>
+                    <td>
+                        {{ prestamo.ejemplar.libro.titulo }}
+                        <div class="text-muted small">ISBN {{ prestamo.ejemplar.libro.isbn }}</div>
+                    </td>
+                    <td class="small">{{ prestamo.ejemplar.codigo_ejemplar }}</td>
+                    <td>{{ prestamo.fecha_limite.strftime('%d/%m/%Y') }}</td>
+                    <td>
+                        {% if prestamo.estado == 'devuelto' %}
+                        <span class="badge text-bg-success">Devuelto</span>
+                        {% elif prestamo.fecha_limite < hoy %}
+                        <span class="badge text-bg-danger">Vencido</span>
+                        {% else %}
+                        <span class="badge text-bg-primary">Pendiente</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {# Estado con el que volvio cada libro, mas el detalle del daño/pérdida. #}
+                        {% set devolucion = prestamo.devolucion %}
+                        {% if devolucion %}
+                        <span class="badge {{ {'bueno': 'text-bg-success', 'dañado': 'text-bg-warning', 'perdido': 'text-bg-danger'}.get(devolucion.estado_ejemplar, 'text-bg-secondary') }}">
+                            {{ devolucion.estado_ejemplar | capitalize }}
+                        </span>
+                        <div class="text-muted small">
+                            {{ devolucion.fecha_devolucion.strftime('%d/%m/%Y') }}
+                            {% if devolucion.multa_generada and devolucion.multa_generada > 0 %}
+                            · Multa ${{ devolucion.multa_generada }}
+                            {% endif %}
+                        </div>
+                        {% if devolucion.observaciones %}
+                        <div class="text-muted small fst-italic">{{ devolucion.observaciones }}</div>
+                        {% endif %}
+                        {% for danio in devolucion.danios_perdidas %}
+                        <div class="text-muted small">{{ danio.tipo | capitalize }}: {{ danio.descripcion }}</div>
+                        {% endfor %}
+                        {% else %}
+                        <span class="text-muted small">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if operacion.pendientes > 0 %}
+    <div class="card-body border-top">
+        <a href="{{ url_for('bibliotecario.devolucion_operacion', prestamo_id=operacion.representante_id) }}"
+           class="btn btn-primary">Registrar devolución</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
