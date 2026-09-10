@@ -232,6 +232,82 @@ class AccionUsuarioForm(FlaskForm):
     submit = SubmitField('Confirmar')
 
 
+class NuevoUsuarioForm(FlaskForm):
+    """
+    Creacion de cuentas desde el modal del gerente. Los datos de la ficha de
+    estudiante solo son obligatorios cuando rol == 'estudiante': por eso van
+    con Optional() a nivel de campo y se exigen en validate().
+    Si el rol es estudiante, el username se ignora y se usa la cedula
+    (misma convencion que el registro del bibliotecario).
+    """
+    username = StringField('Nombre de usuario', validators=[
+        Optional(), Length(max=50, message='El usuario no puede superar 50 caracteres.'),
+    ])
+    rol = SelectField('Rol', choices=[
+        ('estudiante', 'Estudiante'),
+        ('bibliotecario', 'Bibliotecario'),
+        ('gerente', 'Gerente'),
+    ], validators=[DataRequired(message='Selecciona un rol.')])
+    cedula = StringField('Cédula', validators=[Optional(), CedulaEcuatorianaValida()])
+    nombres = StringField('Nombres', validators=[
+        Optional(),
+        Length(min=2, max=100, message='Los nombres deben tener entre 2 y 100 caracteres.'),
+        SoloLetras(message='Los nombres solo pueden contener letras y espacios.'),
+    ])
+    apellidos = StringField('Apellidos', validators=[
+        Optional(),
+        Length(min=2, max=100, message='Los apellidos deben tener entre 2 y 100 caracteres.'),
+        SoloLetras(message='Los apellidos solo pueden contener letras y espacios.'),
+    ])
+    correo = StringField('Correo electrónico', validators=[
+        Optional(), CorreoValido(), Length(max=150),
+    ])
+    telefono = StringField('Teléfono', validators=[Optional(), TelefonoValido()])
+    carrera_id = SelectField('Carrera', coerce=int, validators=[Optional()])
+    fecha_nacimiento = DateField('Fecha de nacimiento', validators=[
+        Optional(),
+        FechaNoFutura(message='La fecha de nacimiento no puede ser futura.'),
+        EdadEntre(
+            EDAD_MINIMA_ESTUDIANTE, EDAD_MAXIMA_ESTUDIANTE,
+            message=f'El estudiante debe tener entre {EDAD_MINIMA_ESTUDIANTE} y {EDAD_MAXIMA_ESTUDIANTE} años.',
+        ),
+    ])
+    genero = SelectField(
+        'Género',
+        choices=[('', 'Prefiero no decir'), ('M', 'Masculino'), ('F', 'Femenino'), ('O', 'Otro')],
+        validators=[Optional()],
+    )
+    submit = SubmitField('Crear usuario')
+
+    CAMPOS_ESTUDIANTE_OBLIGATORIOS = (
+        ('cedula', 'La cédula es obligatoria para el rol estudiante.'),
+        ('nombres', 'Los nombres son obligatorios para el rol estudiante.'),
+        ('apellidos', 'Los apellidos son obligatorios para el rol estudiante.'),
+        ('correo', 'El correo es obligatorio para el rol estudiante.'),
+        ('fecha_nacimiento', 'La fecha de nacimiento es obligatoria para el rol estudiante.'),
+    )
+
+    def validate(self, extra_validators=None):
+        valido = super().validate(extra_validators)
+        if self.rol.data == 'estudiante':
+            for nombre_campo, mensaje in self.CAMPOS_ESTUDIANTE_OBLIGATORIOS:
+                campo = getattr(self, nombre_campo)
+                if not campo.data:
+                    campo.errors.append(mensaje)
+                    valido = False
+            if not self.carrera_id.data or self.carrera_id.data < 1:
+                self.carrera_id.errors.append('Selecciona una carrera.')
+                valido = False
+        elif self.rol.data in ('bibliotecario', 'gerente'):
+            if not (self.username.data or '').strip():
+                self.username.errors.append('El nombre de usuario es obligatorio.')
+                valido = False
+        else:
+            self.rol.errors.append('Rol no válido.')
+            valido = False
+        return valido
+
+
 class DevolucionLoteForm(FlaskForm):
     """
     Devolucion de varios libros de una misma operacion.

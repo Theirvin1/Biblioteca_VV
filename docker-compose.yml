@@ -1,0 +1,68 @@
+# Entorno Docker del proyecto (replica los contenedores manuales
+# "biblio-app" y "biblio-postgres").
+#
+# Desde cero (clon fresco):
+#   1. copy .env.example .env   (en Windows: copy; en Linux: cp)
+#   2. pon un SECRET_KEY propio en .env (generalo con:
+#      python -c "import secrets; print(secrets.token_hex(32))")
+#   3. docker compose up -d --build
+# El entrypoint deja la BD lista solo: espera a postgres, corre las
+# migraciones, aplica database/setup.sql y database/seed.py (todo
+# idempotente). La app queda en http://localhost:5000 con los usuarios
+# demo gerente/Gerente, bibliotecario/Biblio y estudiante/Estudiante.
+#
+# Otros comandos:
+#   docker compose logs -f app       # ver la app
+#   docker compose down              # apagar (el volumen pgdata conserva la BD)
+#   docker compose down -v           # apagar BORRANDO los datos
+#
+# Puertos (iguales que antes): app en localhost:5000, postgres en localhost:5433.
+# La app se conecta al servicio "postgres" por red interna (puerto 5432).
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: biblio-postgres
+    environment:
+      POSTGRES_USER: biblio
+      POSTGRES_PASSWORD: biblio123
+      POSTGRES_DB: biblioteca_vv
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U biblio -d biblioteca_vv"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: biblio-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "5000:5000"
+    volumes:
+      # Desarrollo con recarga: el codigo local prevalece sobre la copia
+      # de la imagen (igual que el bind manual anterior).
+      - .:/code
+    env_file:
+      - .env
+    environment:
+      # Dentro de compose la BD se alcanza por nombre de servicio, no por
+      # localhost ni host.docker.internal. Prevalece sobre el .env.
+      DATABASE_URL: postgresql://biblio:biblio123@postgres:5432/biblioteca_vv
+      FLASK_ENV: ${FLASK_ENV:-development}
+      SECRET_KEY: ${SECRET_KEY:?Configura SECRET_KEY en tu archivo .env}
+      # Conexion que usa docker-entrypoint.sh (pg_isready + psql).
+      PGHOST: postgres
+      PGPORT: 5432
+      PGUSER: biblio
+      PGDATABASE: biblioteca_vv
+      PGPASSWORD: biblio123
+
+volumes:
+  pgdata:

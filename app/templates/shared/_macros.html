@@ -1,5 +1,13 @@
+{# Portada clicable: abre el modal compartido (shared/_modal_portada.html)
+   con la imagen en grande. La pagina que use este macro debe incluir ese
+   modal y static/js/portada_ampliada.js. #}
 {% macro portada_libro(libro, css_class='img-fluid rounded') %}
-<img src="{{ url_portada(libro.portada_archivo) }}" alt="Portada de {{ libro.titulo }}" class="{{ css_class }}" loading="lazy">
+<button type="button" class="boton-portada" data-accion="ver-portada"
+        data-portada="{{ url_portada(libro.portada_archivo) }}"
+        data-titulo="{{ libro.titulo }}"
+        title="Ver portada de {{ libro.titulo }}">
+    <img src="{{ url_portada(libro.portada_archivo) }}" alt="Portada de {{ libro.titulo }}" class="{{ css_class }}" loading="lazy">
+</button>
 {% endmacro %}
 
 

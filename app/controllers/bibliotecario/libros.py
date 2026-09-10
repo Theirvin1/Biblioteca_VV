@@ -28,10 +28,13 @@ def _carpeta_portadas_absoluta():
 
 
 def _siguiente_numero_ejemplar():
+    # Solo se consideran los codigos con formato numerico EJ-NNNNNN: otros
+    # formatos heredados o de carga masiva (p. ej. 'EJ-M0024-1') se ignoran
+    # para no reventar el CAST con error 500.
     resultado = db.session.execute(
         db.text(
             "SELECT COALESCE(MAX(CAST(SUBSTRING(codigo_ejemplar FROM 4) AS INTEGER)), 0) "
-            "FROM ejemplares WHERE codigo_ejemplar LIKE 'EJ-%'"
+            "FROM ejemplares WHERE codigo_ejemplar ~ '^EJ-[0-9]+$'"
         )
     ).scalar()
     return resultado or 0

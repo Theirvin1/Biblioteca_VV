@@ -3,26 +3,26 @@
 -- ============================================
 
 -- Búsquedas frecuentes
-CREATE INDEX idx_estudiantes_cedula         ON estudiantes(cedula);
-CREATE INDEX idx_estudiantes_apellidos      ON estudiantes(apellidos);
-CREATE INDEX idx_libros_isbn                ON libros(isbn);
-CREATE INDEX idx_libros_titulo               ON libros(titulo);
-CREATE INDEX idx_libros_categoria_id        ON libros(categoria_id);
-CREATE INDEX idx_ejemplares_libro_id        ON ejemplares(libro_id);
-CREATE INDEX idx_ejemplares_estado          ON ejemplares(estado);
+CREATE INDEX IF NOT EXISTS idx_estudiantes_cedula         ON estudiantes(cedula);
+CREATE INDEX IF NOT EXISTS idx_estudiantes_apellidos      ON estudiantes(apellidos);
+CREATE INDEX IF NOT EXISTS idx_libros_isbn                ON libros(isbn);
+CREATE INDEX IF NOT EXISTS idx_libros_titulo               ON libros(titulo);
+CREATE INDEX IF NOT EXISTS idx_libros_categoria_id        ON libros(categoria_id);
+CREATE INDEX IF NOT EXISTS idx_ejemplares_libro_id        ON ejemplares(libro_id);
+CREATE INDEX IF NOT EXISTS idx_ejemplares_estado          ON ejemplares(estado);
 
 -- Filtros en préstamos y devoluciones
-CREATE INDEX idx_prestamos_estudiante_id    ON prestamos(estudiante_id);
-CREATE INDEX idx_prestamos_estado           ON prestamos(estado);
-CREATE INDEX idx_prestamos_fecha_limite     ON prestamos(fecha_limite);
-CREATE INDEX idx_prestamos_bibliotecario    ON prestamos(bibliotecario_id);
-CREATE INDEX idx_devoluciones_prestamo_id   ON devoluciones(prestamo_id);
-CREATE INDEX idx_devoluciones_multa_pagada  ON devoluciones(multa_pagada);
+CREATE INDEX IF NOT EXISTS idx_prestamos_estudiante_id    ON prestamos(estudiante_id);
+CREATE INDEX IF NOT EXISTS idx_prestamos_estado           ON prestamos(estado);
+CREATE INDEX IF NOT EXISTS idx_prestamos_fecha_limite     ON prestamos(fecha_limite);
+CREATE INDEX IF NOT EXISTS idx_prestamos_bibliotecario    ON prestamos(bibliotecario_id);
+CREATE INDEX IF NOT EXISTS idx_devoluciones_prestamo_id   ON devoluciones(prestamo_id);
+CREATE INDEX IF NOT EXISTS idx_devoluciones_multa_pagada  ON devoluciones(multa_pagada);
 
 -- Auditoría
-CREATE INDEX idx_auditoria_fecha_hora       ON auditoria(fecha_hora);
-CREATE INDEX idx_auditoria_tabla            ON auditoria(tabla_afectada);
-CREATE INDEX idx_sesiones_usuario_id        ON sesiones(usuario_id);
+CREATE INDEX IF NOT EXISTS idx_auditoria_fecha_hora       ON auditoria(fecha_hora);
+CREATE INDEX IF NOT EXISTS idx_auditoria_tabla            ON auditoria(tabla_afectada);
+CREATE INDEX IF NOT EXISTS idx_sesiones_usuario_id        ON sesiones(usuario_id);
 
 
 
@@ -225,6 +225,7 @@ RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trigger_calcular_fecha_limite ON prestamos;
 CREATE TRIGGER trigger_calcular_fecha_limite
     BEFORE INSERT ON prestamos
     FOR EACH ROW
@@ -250,6 +251,7 @@ RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trigger_bloquear_stock_negativo ON prestamos;
 CREATE TRIGGER trigger_bloquear_stock_negativo
     BEFORE INSERT ON prestamos
     FOR EACH ROW
@@ -276,6 +278,7 @@ RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trigger_actualizar_stock_prestamo ON prestamos;
 CREATE TRIGGER trigger_actualizar_stock_prestamo
     AFTER INSERT ON prestamos
     FOR EACH ROW
@@ -305,6 +308,7 @@ RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trigger_actualizar_stock_devolucion ON devoluciones;
 CREATE TRIGGER trigger_actualizar_stock_devolucion
     AFTER INSERT ON devoluciones
     FOR EACH ROW
@@ -326,6 +330,7 @@ RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trigger_auditoria_prestamos ON prestamos;
 CREATE TRIGGER trigger_auditoria_prestamos
     AFTER INSERT OR UPDATE ON prestamos
                         FOR EACH ROW
@@ -347,6 +352,7 @@ RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trigger_auditoria_devoluciones ON devoluciones;
 CREATE TRIGGER trigger_auditoria_devoluciones
     AFTER INSERT OR UPDATE ON devoluciones
                         FOR EACH ROW
@@ -371,6 +377,7 @@ RETURN COALESCE(NEW, OLD);
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trigger_auditoria_libros ON libros;
 CREATE TRIGGER trigger_auditoria_libros
     AFTER INSERT OR UPDATE OR DELETE ON libros
     FOR EACH ROW

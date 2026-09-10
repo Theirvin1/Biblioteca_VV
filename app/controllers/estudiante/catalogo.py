@@ -1,27 +1,21 @@
-from flask import jsonify, redirect, render_template, request, url_for, flash
+from flask import redirect, render_template, request, url_for, flash
 from flask_login import login_required
 
 from app.controllers.decoradores import requiere_rol
 from app.controllers.estudiante import estudiante_bp
 from app.models import CategoriaLibro, Libro
-from app.portadas import url_portada
+from app.paginacion import (
+    POR_PAGINA_CATALOGO, argumentos_activos, entero_filtro, pagina_actual,
+    texto_filtro,
+)
 
 
 @estudiante_bp.route('/catalogo')
 @login_required
 @requiere_rol('estudiante')
 def listado_catalogo():
-    categorias = CategoriaLibro.query.order_by(CategoriaLibro.nombre).all()
-    libros = Libro.query.filter_by(activo=True).order_by(Libro.titulo).all()
-    return render_template('estudiante/catalogo.html', libros=libros, categorias=categorias)
-
-
-@estudiante_bp.route('/api/catalogo/buscar')
-@login_required
-@requiere_rol('estudiante')
-def api_buscar_catalogo():
-    termino = (request.args.get('q') or '').strip()
-    categoria_id = request.args.get('categoria_id', type=int)
+    termino = texto_filtro(request, 'q')
+    categoria_id = entero_filtro(request, 'categoria_id')
 
     consulta = Libro.query.filter_by(activo=True)
     if termino:
@@ -29,23 +23,19 @@ def api_buscar_catalogo():
     if categoria_id:
         consulta = consulta.filter(Libro.categoria_id == categoria_id)
 
-    libros = consulta.order_by(Libro.titulo).limit(50).all()
+    paginacion = consulta.order_by(Libro.titulo).paginate(
+        page=pagina_actual(request), per_page=POR_PAGINA_CATALOGO, error_out=False
+    )
 
-    return jsonify([
-        {
-            'isbn': libro.isbn,
-            'titulo': libro.titulo,
-            'editorial': libro.editorial.nombre if libro.editorial else '',
-            'categoria': libro.categoria.nombre if libro.categoria else '',
-            'stock_disponible': libro.stock_disponible,
-            'portada_url': url_portada(libro.portada_archivo),
-            'autores': ', '.join(
-                f'{la.autor.nombres} {la.autor.apellidos}' for la in libro.libro_autor if la.autor
-            ) or 'Autor no registrado',
-            'resumen': libro.resumen or '',
-        }
-        for libro in libros
-    ])
+    filtros = {'q': termino, 'categoria_id': categoria_id}
+    return render_template(
+        'estudiante/catalogo.html',
+        libros=paginacion.items,
+        categorias=CategoriaLibro.query.order_by(CategoriaLibro.nombre).all(),
+        paginacion=paginacion,
+        filtros=filtros,
+        argumentos=argumentos_activos(**filtros),
+    )
 
 
 @estudiante_bp.route('/catalogo/<isbn>')

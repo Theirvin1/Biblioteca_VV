@@ -82,8 +82,10 @@
 </div>
 
 {% include 'shared/_modal_resumen.html' %}
+{% include 'shared/_modal_portada.html' %}
 {% endblock %}
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/resumen_libro.js') }}"></script>
+<script src="{{ url_for('static', filename='js/portada_ampliada.js') }}"></script>
 {% endblock %}

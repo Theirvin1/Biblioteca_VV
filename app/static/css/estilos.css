@@ -176,6 +176,37 @@ a:hover {
 }
 
 /* ==========================================================
+   Paginacion del catalogo del estudiante
+   (solo catalogo: el macro compartido no se toca)
+   ========================================================== */
+.paginacion-catalogo {
+    padding-bottom: 3rem;
+}
+
+.paginacion-catalogo .page-link {
+    font-size: 1.1rem;
+    padding: 0.6rem 1rem;
+}
+
+/* ==========================================================
+   Portada ampliada en modal (macro portada_libro)
+   ========================================================== */
+.boton-portada {
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: zoom-in;
+    display: inline-block;
+}
+
+.portada-ampliada {
+    max-width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+    border-radius: 0.5rem;
+}
+
+/* ==========================================================
    Varios
    ========================================================== */
 .list-group-item-action {
