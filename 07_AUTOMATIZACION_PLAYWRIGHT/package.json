@@ -1,0 +1,19 @@
+{
+  "name": "biblioteca-vv-e2e",
+  "version": "2.0.0",
+  "description": "Suite de pruebas E2E de Biblioteca VV con Playwright Test (examen final de Verificación y Validación de Software).",
+  "main": "playwright.config.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "reporte": "playwright show-report ../05_EVIDENCIAS_NUEVAS/PLAYWRIGHT/reporte-html",
+    "capturas": "node scripts/capturas-sistema.js"
+  },
+  "keywords": ["playwright", "e2e", "biblioteca", "verificacion-validacion"],
+  "author": "Grupo 3 - UTEQ",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.62.1"
+  }
+}

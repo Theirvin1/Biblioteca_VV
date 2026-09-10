@@ -28,3 +28,8 @@ app/static/uploads/portadas/*
 
 # Migraciones si usas algo tipo Alembic y no quieres subir el historial completo (opcional, normalmente SÍ se suben)
 # alembic/versions/*.pyc
+
+# Dependencias de la suite E2E (se instalan con npm install)
+07_AUTOMATIZACION_PLAYWRIGHT/node_modules/
+# Estado de la ultima corrida E2E (cambia en cada ejecucion)
+07_AUTOMATIZACION_PLAYWRIGHT/playwright-tests/.estado-suite.json
