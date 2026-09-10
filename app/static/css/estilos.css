@@ -176,6 +176,19 @@ a:hover {
 }
 
 /* ==========================================================
+   Paginacion del catalogo del estudiante
+   (solo catalogo: el macro compartido no se toca)
+   ========================================================== */
+.paginacion-catalogo {
+    padding-bottom: 3rem;
+}
+
+.paginacion-catalogo .page-link {
+    font-size: 1.1rem;
+    padding: 0.6rem 1rem;
+}
+
+/* ==========================================================
    Varios
    ========================================================== */
 .list-group-item-action {

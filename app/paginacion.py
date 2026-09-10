@@ -12,6 +12,10 @@ from app.extensions import db
 # Registros por pagina en los listados principales del bibliotecario.
 POR_PAGINA = 10
 
+# El catalogo del estudiante muestra tarjetas en grilla de 3 columnas:
+# 15 deja filas completas (5 x 3) en cada pagina.
+POR_PAGINA_CATALOGO = 15
+
 # Tope de pagina. Un `?page=99999999999999999999` se convertia en un entero de
 # Python sin problema y llegaba tal cual al OFFSET de la consulta, donde
 # PostgreSQL lo rechaza por desbordar bigint: error 500 con un simple cambio

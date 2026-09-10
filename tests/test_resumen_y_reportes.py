@@ -138,9 +138,10 @@ def test_boton_resumen_en_catalogo_estudiante(client, db, usuario_estudiante, lo
     assert 'data-accion="ver-resumen"' in texto
     assert 'id="modal-resumen-libro"' in texto
 
-    # API AJAX del catalogo tambien expone el resumen (lo usan las tarjetas dinamicas).
-    datos = client.get('/estudiante/api/catalogo/buscar').get_json()
-    assert any(item['isbn'] == '9780000000097' and item['resumen'] == 'Sinopsis del catalogo.' for item in datos)
+    # El catalogo filtra en servidor: el libro aparece buscandolo por titulo.
+    filtrado = client.get('/estudiante/catalogo?q=Libro+del+catalogo').get_data(as_text=True)
+    assert 'Libro del catalogo' in filtrado
+    assert 'data-resumen="Sinopsis del catalogo."' in filtrado
 
     # El detalle del libro muestra el resumen directamente (sin modal).
     detalle = client.get('/estudiante/catalogo/9780000000097').get_data(as_text=True)

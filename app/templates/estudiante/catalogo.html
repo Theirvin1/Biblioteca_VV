@@ -1,24 +1,31 @@
 {% extends 'estudiante/_base.html' %}
 {% from 'shared/_macros.html' import portada_libro, autores_libro, boton_ver_resumen %}
+{% from 'shared/_paginacion.html' import control_paginacion %}
 
 {% block title %}Catálogo - Estudiante{% endblock %}
 
 {% block content %}
 <h2 class="mb-4">Catálogo de libros</h2>
 
-<div class="row g-2 mb-3">
-    <div class="col-md-8">
-        <input type="text" id="buscador-catalogo" class="form-control" placeholder="Buscar por título...">
+<form method="GET" action="{{ url_for('estudiante.listado_catalogo') }}" class="row g-2 mb-3">
+    <div class="col-md-6">
+        <input type="text" id="buscador-catalogo" name="q" class="form-control"
+               maxlength="100" value="{{ filtros.q }}" placeholder="Buscar por título...">
     </div>
-    <div class="col-md-4">
-        <select id="filtro-categoria" class="form-select">
+    <div class="col-md-3">
+        <select id="filtro-categoria" name="categoria_id" class="form-select">
             <option value="">Todas las categorías</option>
             {% for categoria in categorias %}
-            <option value="{{ categoria.id }}">{{ categoria.nombre }}</option>
+            <option value="{{ categoria.id }}" {% if filtros.categoria_id == categoria.id %}selected{% endif %}>{{ categoria.nombre }}</option>
             {% endfor %}
         </select>
     </div>
-</div>
+    <div class="col-md-3 d-flex gap-2">
+        <button type="submit" class="btn btn-primary flex-grow-1">Buscar</button>
+        <a href="{{ url_for('estudiante.listado_catalogo') }}"
+           class="btn btn-outline-secondary" title="Limpiar filtros">Limpiar</a>
+    </div>
+</form>
 
 <div class="row g-3" id="contenedor-libros">
     {% for libro in libros %}
@@ -43,15 +50,18 @@
     </div>
     {% else %}
     <div class="col-12">
-        <p class="text-muted text-center py-4">No hay libros disponibles en el catálogo por el momento.</p>
+        <p class="text-muted text-center py-4">No se encontraron libros con esos criterios.</p>
     </div>
     {% endfor %}
+</div>
+
+<div class="paginacion-catalogo">
+{{ control_paginacion(paginacion, 'estudiante.listado_catalogo', argumentos, 'libros') }}
 </div>
 
 {% include 'shared/_modal_resumen.html' %}
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='js/estudiante_catalogo.js') }}"></script>
 <script src="{{ url_for('static', filename='js/resumen_libro.js') }}"></script>
 {% endblock %}
