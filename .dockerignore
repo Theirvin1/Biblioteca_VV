@@ -1,0 +1,22 @@
+# No mandar al contexto de build: el codigo llega por COPY solo con lo necesario
+# (en desarrollo docker-compose.yml lo monta con bind de todos modos).
+.git/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+venv/
+env/
+.venv/
+.idea/
+.vscode/
+.env
+*.log
+.DS_Store
+Thumbs.db
+
+# node_modules de la suite Playwright y evidencias pesadas: no hacen falta
+# en la imagen de la app.
+07_AUTOMATIZACION_PLAYWRIGHT/node_modules/
+05_EVIDENCIAS_NUEVAS/
