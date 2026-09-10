@@ -14,8 +14,8 @@ from werkzeug.security import generate_password_hash
 from app.controllers.decoradores import requiere_rol
 from app.controllers.gerente import gerente_bp
 from app.extensions import db
-from app.forms import AccionUsuarioForm
-from app.models import Auditoria, Estudiante, Usuario
+from app.forms import AccionUsuarioForm, NuevoUsuarioForm
+from app.models import Auditoria, Carrera, Estudiante, Usuario
 from app.paginacion import (
     POR_PAGINA, argumentos_activos, opcion_filtro, pagina_actual, texto_filtro,
 )
@@ -119,11 +119,100 @@ def listado_usuarios():
         paginacion=paginacion,
         filas=filas,
         form=AccionUsuarioForm(),
+        form_crear=NuevoUsuarioForm(),
+        carreras=Carrera.query.order_by(Carrera.nombre).all(),
         roles=ROLES,
         roles_intercambiables=ROLES_INTERCAMBIABLES,
         filtros=filtros,
         argumentos=argumentos_activos(**filtros),
     )
+
+
+@gerente_bp.route('/usuarios/nuevo', methods=['POST'])
+@login_required
+@requiere_rol('gerente')
+def crear_usuario():
+    """
+    Crea una cuenta desde el modal de gestion de usuarios. Con rol
+    'estudiante' exige la ficha completa y usa la cedula como username
+    (misma convencion que el registro del bibliotecario); con
+    'bibliotecario'/'gerente' solo crea la cuenta.
+    La clave temporal se muestra UNA sola vez con la plantilla de
+    credenciales, igual que el restablecimiento.
+    """
+    form = NuevoUsuarioForm()
+    form.carrera_id.choices = [(0, '-- Selecciona una carrera --')] + [
+        (c.id, f'{c.nombre} ({c.facultad.nombre})')
+        for c in Carrera.query.join(Carrera.facultad).order_by(Carrera.nombre).all()
+    ]
+
+    if not form.validate_on_submit():
+        for campo, errores in form.errors.items():
+            for error in errores:
+                flash(f'{form[campo].label.text}: {error}', 'danger')
+        return redirect(url_for('gerente.listado_usuarios'))
+
+    rol = form.rol.data
+    es_estudiante = rol == 'estudiante'
+    username = form.cedula.data if es_estudiante else (form.username.data or '').strip()
+
+    if Usuario.query.filter_by(username=username).first():
+        flash(f'Ya existe una cuenta con el usuario "{username}".', 'danger')
+        return redirect(url_for('gerente.listado_usuarios'))
+
+    estudiante = None
+    if es_estudiante:
+        correo = (form.correo.data or '').strip()
+        if Estudiante.query.filter_by(cedula=form.cedula.data).first():
+            flash('Ya existe un estudiante registrado con esa cédula.', 'danger')
+            return redirect(url_for('gerente.listado_usuarios'))
+        if Estudiante.query.filter_by(correo=correo).first():
+            flash('Ya existe un estudiante registrado con ese correo.', 'danger')
+            return redirect(url_for('gerente.listado_usuarios'))
+
+    password_temporal = generar_password_temporal()
+    usuario = Usuario(
+        username=username,
+        password_hash=generate_password_hash(password_temporal),
+        rol=rol,
+        debe_cambiar_password=True,
+    )
+    db.session.add(usuario)
+    db.session.flush()
+
+    if es_estudiante:
+        estudiante = Estudiante(
+            cedula=form.cedula.data,
+            nombres=(form.nombres.data or '').strip(),
+            apellidos=(form.apellidos.data or '').strip(),
+            correo=(form.correo.data or '').strip(),
+            telefono=(form.telefono.data or '').strip() or None,
+            carrera_id=form.carrera_id.data,
+            fecha_nacimiento=form.fecha_nacimiento.data,
+            genero=form.genero.data or None,
+            usuario_id=usuario.id,
+        )
+        db.session.add(estudiante)
+
+    _registrar_auditoria(
+        usuario, 'INSERT',
+        {},
+        {'id': usuario.id, 'username': usuario.username, 'rol': usuario.rol},
+    )
+
+    try:
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        flash('No se pudo crear el usuario. Verifica los datos ingresados.', 'danger')
+        return redirect(url_for('gerente.listado_usuarios'))
+
+    return respuesta_sin_cache(render_template(
+        'gerente/usuarios_credenciales.html',
+        usuario=usuario,
+        estudiante=estudiante,
+        password_temporal=password_temporal,
+    ))
 
 
 @gerente_bp.route('/usuarios/<int:usuario_id>/estado', methods=['POST'])

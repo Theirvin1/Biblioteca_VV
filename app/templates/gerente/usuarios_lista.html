@@ -4,7 +4,12 @@
 {% block title %}Gestión de usuarios - Gerente{% endblock %}
 
 {% block content %}
-<h2 class="mb-3">Gestión de usuarios</h2>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Gestión de usuarios</h2>
+    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalCrearUsuario">
+        Crear usuario
+    </button>
+</div>
 
 <form method="GET" class="card shadow-sm mb-3">
     <div class="card-body row g-2 align-items-end">
@@ -129,4 +134,103 @@
     </div>
     {{ control_paginacion(paginacion, 'gerente.listado_usuarios', argumentos, 'usuarios') }}
 </div>
+
+{# Modal de creacion: con rol estudiante pide la ficha completa y el usuario
+   sera la cedula; con bibliotecario/gerente solo pide usuario y rol. #}
+<div class="modal fade" id="modalCrearUsuario" tabindex="-1" aria-labelledby="modalCrearUsuarioTitulo" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('gerente.crear_usuario') }}">
+                {{ form_crear.hidden_tag() }}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalCrearUsuarioTitulo">Crear usuario</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label" for="crear_rol">Rol</label>
+                        <select class="form-select" id="crear_rol" name="rol" required>
+                            <option value="estudiante" selected>Estudiante</option>
+                            <option value="bibliotecario">Bibliotecario</option>
+                            <option value="gerente">Gerente</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6" id="grupo_username">
+                        <label class="form-label" for="crear_username">Nombre de usuario</label>
+                        <input type="text" class="form-control" id="crear_username" name="username"
+                               maxlength="50" placeholder="Solo bibliotecario o gerente">
+                        <div class="form-text">Con rol estudiante el usuario será la cédula.</div>
+                    </div>
+                    <div id="grupo_estudiante" class="row g-3 m-0 p-0">
+                        <div class="col-md-6">
+                            <label class="form-label" for="crear_cedula">Cédula</label>
+                            <input type="text" class="form-control" id="crear_cedula" name="cedula"
+                                   maxlength="10" inputmode="numeric" placeholder="10 dígitos">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="crear_correo">Correo electrónico</label>
+                            <input type="email" class="form-control" id="crear_correo" name="correo" maxlength="150">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="crear_nombres">Nombres</label>
+                            <input type="text" class="form-control" id="crear_nombres" name="nombres" maxlength="100">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="crear_apellidos">Apellidos</label>
+                            <input type="text" class="form-control" id="crear_apellidos" name="apellidos" maxlength="100">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="crear_telefono">Teléfono (opcional)</label>
+                            <input type="text" class="form-control" id="crear_telefono" name="telefono"
+                                   maxlength="15" inputmode="numeric" placeholder="10 dígitos">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="crear_genero">Género (opcional)</label>
+                            <select class="form-select" id="crear_genero" name="genero">
+                                <option value="">Prefiero no decir</option>
+                                <option value="M">Masculino</option>
+                                <option value="F">Femenino</option>
+                                <option value="O">Otro</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="crear_carrera">Carrera</label>
+                            <select class="form-select" id="crear_carrera" name="carrera_id">
+                                <option value="0">-- Selecciona una carrera --</option>
+                                {% for carrera in carreras %}
+                                <option value="{{ carrera.id }}">{{ carrera.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="crear_nacimiento">Fecha de nacimiento</label>
+                            <input type="date" class="form-control" id="crear_nacimiento" name="fecha_nacimiento">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Crear usuario</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+    var rol = document.getElementById('crear_rol');
+    var grupoEstudiante = document.getElementById('grupo_estudiante');
+    var grupoUsername = document.getElementById('grupo_username');
+    function alternar() {
+        var esEstudiante = rol.value === 'estudiante';
+        grupoEstudiante.style.display = esEstudiante ? '' : 'none';
+        grupoUsername.style.display = esEstudiante ? 'none' : '';
+    }
+    rol.addEventListener('change', alternar);
+    alternar();
+})();
+</script>
 {% endblock %}
